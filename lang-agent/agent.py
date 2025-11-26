@@ -1,7 +1,12 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
+from google.adk.runners import InMemoryRunner
+from google.adk.plugins.logging_plugin import LoggingPlugin
+from google.genai import types
+import asyncio
 
 from .config import config
+from plugin.CountInvocationPlugin import CountInvocationPlugin
 from .tools import find_lang_agent
 
 root_agent = Agent(
@@ -23,3 +28,30 @@ root_agent = Agent(
     tools=[],
     output_key="blog_outline",
 )
+
+async def main():
+    prompt = 'Hi, I am Cleveland. How can I help you?'
+
+    runner = InMemoryRunner(
+        agent=root_agent,
+        plugins=[
+            LoggingPlugin(), CountInvocationPlugin()
+        ],
+    )
+
+    session = await runner.session_service.create_session(
+        user_id='user',
+        app_name='agent_cleveland',
+    )
+
+    async for event in runner.run_async(
+            user_id='user',
+            session_id=session.id,
+            new_message=types.Content(
+                role='user', parts=[types.Part.from_text(text=prompt)]
+            )
+    ):
+        print(f'** Got event from {event.author}')
+
+if __name__ == "__main__":
+    asyncio.run(main())
