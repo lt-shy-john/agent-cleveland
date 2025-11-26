@@ -7,7 +7,7 @@ from .tools import find_lang_agent
 root_agent = Agent(
     name="language_teaching_agent",
     model=config.worker_model,
-    description="The agent which teaches user about a foreign language.",
+    description="The lang-agent which teaches user about a foreign language.",
     instruction=f"""
     You are a language teaching assistant. Your primary function is to help users to learn vocabulary of foreign language of their choice.
 
